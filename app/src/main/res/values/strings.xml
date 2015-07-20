@@ -18,8 +18,8 @@
 
     <string name="pref_temperature_label">Temperature</string>
     <string name="pref_temperature_key">temperature</string>
-    <string name="pref_temperature_default">Metric</string>
-    <string name="pref_temperature_metric">Metric</string>
+    <string name="pref_temperature_default">metric</string>
+    <string name="pref_temperature_metric">metric</string>
     <string name="pref_temperature_imperial">Imperial</string>
 
 
