@@ -2,6 +2,8 @@ package com.example.asaldanha.sunshine.app;
 
 import android.app.Fragment;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
@@ -12,10 +14,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
+import com.example.asaldanha.sunshine.app.data.WeatherContract;
 
 
 /**
@@ -25,8 +26,8 @@ import java.util.ArrayList;
 
 public class ForecastFragment extends Fragment implements Preference.OnPreferenceChangeListener {
 
-        private ArrayAdapter<String> mForecastAdapter;
-    //private ForecastAdapter mForecastAdapter;
+    //private ArrayAdapter<String> mForecastAdapter;
+    private ForecastAdapter mForecastAdapter;
     public String a1 = "test";
     ListView listView;
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
@@ -85,8 +86,8 @@ public class ForecastFragment extends Fragment implements Preference.OnPreferenc
 /*      This initialization  is maybe needed for when FetchWeatherTask is withing the class - this
 has to removed when FetchWeather was implemented as a class as it was re-initializing the adapter
 */
-        ArrayList<String> WeekForecast = new ArrayList<String>();
 /*
+        ArrayList<String> WeekForecast = new ArrayList<String>();
 
         WeekForecast.add("Today Sunny 88/63");
         WeekForecast.add("Tomorrow Cloudy 90/70");
@@ -94,12 +95,11 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         WeekForecast.add("Thursday Cloudy 92/72");
         WeekForecast.add("Friday Sunny 92/72");
         WeekForecast.add("Saturday Sunny 92/72");
- */
 
         mForecastAdapter =
                 new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast,R.id.list_item_forecast_textview, WeekForecast);
+ */
 
-/*
         //Use the Utilities to get the preferred location
         String prefLocation = Utility.getPreferredLocation(getActivity());
 
@@ -113,18 +113,15 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         //URI, projection, selection, selection args, sort order
         Cursor cur = getActivity().getContentResolver().query(weatherURI, null, null, null, sortOrder);
 
-
-
         // use the cursor with the Adpater
         mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
-*/
 
 
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         listView = (ListView) v.findViewById(R.id.listView_forecast);
         listView.setAdapter(mForecastAdapter);
 
-        UpdateWeatherData();
+//        UpdateWeatherData();
 
 /*
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -174,7 +171,8 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
 //        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity().getBaseContext());
 
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mForecastAdapter);
+//        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mForecastAdapter);
+        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         weatherTask.execute(my_edittext_preference, my_temperature_preference);
 
     }
