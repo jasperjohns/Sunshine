@@ -1,12 +1,14 @@
 package com.example.asaldanha.sunshine.app;
 
-import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,19 +20,24 @@ import android.widget.ListView;
 
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
 
+//import android.support.v4.app.Fragment;
+
 
 /**
  * A placeholder fragment containing a simple view.
  */
 
 
-public class ForecastFragment extends Fragment implements Preference.OnPreferenceChangeListener {
+public class ForecastFragment extends android.support.v4.app.Fragment implements Preference.OnPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor>  {
+
+    private final String LOG_TAG = ForecastFragment.class.getSimpleName();
+    private final static int LOADER_ID = 0;
+
 
     //private ArrayAdapter<String> mForecastAdapter;
     private ForecastAdapter mForecastAdapter;
     public String a1 = "test";
     ListView listView;
-    private final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private String mTemperature = "metric";
 
     public ForecastFragment() {
@@ -39,10 +46,28 @@ public class ForecastFragment extends Fragment implements Preference.OnPreferenc
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+
+        //getLoaderManager().initLoader(LOADER_ID, null, (android.app.LoaderManager.LoaderCallbacks<Cursor>) this);
+
+        // Prepare the loader.  Either re-connect with an existing one,
+        // or start a new one.
         // Wrong place ... sheould go to OnStart
 //        UpdateWeatherData();
     }
+
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+
+
+
+    }
+
 
     //Does not get called ????
 //    @Override
@@ -100,6 +125,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
                 new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast,R.id.list_item_forecast_textview, WeekForecast);
  */
 
+/*
         //Use the Utilities to get the preferred location
         String prefLocation = Utility.getPreferredLocation(getActivity());
 
@@ -115,7 +141,9 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
         // use the cursor with the Adpater
         mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
+*/
 
+        mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         listView = (ListView) v.findViewById(R.id.listView_forecast);
@@ -149,12 +177,10 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
         Log.v(LOG_TAG, "onPreferenceChange");
         String stringValue = value.toString();
-
-
         return true;
     }
 
-
+   // PUBLIC METHODS
     public void UpdateWeatherData() {
 
         SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -176,6 +202,62 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         weatherTask.execute(my_edittext_preference, my_temperature_preference);
 
     }
+
+    //LOADER METHODS
+    @Override
+    public Loader<Cursor> onCreateLoader(int loader, Bundle args) {
+        // This is called when a new Loader needs to be created.  This
+        // sample only has one Loader, so we don't care about the ID.
+        // First, pick the base URI to use depending on whether we are
+        // currently filtering.
+
+
+
+        //Uri, projection, selection, selectionArgs, sort order
+
+
+        // Now create and return a CursorLoader that will take care of
+        // creating a Cursor for the data being displayed.
+
+        //Use the Utilities to get the preferred location
+        String prefLocation = Utility.getPreferredLocation(getActivity());
+
+        //Sort order column date Asc
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+
+        //Build URI for Content provider: Weather with a Start Date
+        Uri weatherURI = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(prefLocation, System.currentTimeMillis());
+
+
+
+        //Query using the content provider to get the  cursor
+        //URI, projection, selection, selection args, sort order
+//        Cursor cur = getActivity().getContentResolver().query(weatherURI, null, null, null, sortOrder);
+
+        return new CursorLoader(getActivity(), weatherURI,
+                null, null, null,
+                sortOrder);
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Swap the new cursor in.  (The framework will take care of closing the
+        // old cursor once we return.)
+        mForecastAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // This is called when the last Cursor provided to onLoadFinished()
+        // above is about to be closed.  We need to make sure we are no
+        // longer using it.
+        mForecastAdapter.swapCursor(null);
+    }
+
+
+
+
 
 }
 
