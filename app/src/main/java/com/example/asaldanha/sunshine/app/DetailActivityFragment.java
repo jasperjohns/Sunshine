@@ -34,23 +34,38 @@ public class DetailActivityFragment extends  Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Bundle bundle = getActivity().getIntent().getExtras();
+        Intent intent = getActivity().getIntent();
+        Bundle bundle = intent.getExtras();
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        if(bundle.getString(Intent.EXTRA_TEXT)!= null)
-        {
+
+        if (bundle != null && bundle.containsKey(Intent.EXTRA_TEXT)) {
+
+            if(bundle.getString(Intent.EXTRA_TEXT)!= null)
+            {
 //            Log.v(LOG_TAG, bundle.getString(Intent.EXTRA_TEXT).toString());
 
-            //TODO here get the string stored in the string variable and do
-            TextView  textDetail = (TextView) rootView.findViewById(R.id.textDetail);
+                //TODO here get the string stored in the string variable and do
+                TextView textDetail = (TextView) rootView.findViewById(R.id.textDetail);
 //            textDetail.setText(bundle.getString(Intent.EXTRA_TEXT).toString());
 //            textDetail.setText("asdasdasd");
-            if (textDetail != null) {
-                mForecastStr = bundle.getString(Intent.EXTRA_TEXT).toString();
-               textDetail.setText(mForecastStr);
+                if (textDetail != null) {
+                    mForecastStr = bundle.getString(Intent.EXTRA_TEXT).toString();
+                    textDetail.setText(mForecastStr);
+                }
             }
         }
+
+        if ( intent != null) {
+            mForecastStr = intent.getDataString();
+        }
+
+        if (null != mForecastStr) {
+            ((TextView) rootView.findViewById(R.id.textDetail))
+                    .setText(mForecastStr);
+        }
+
        return rootView;
     }
 

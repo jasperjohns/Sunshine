@@ -1,5 +1,6 @@
 package com.example.asaldanha.sunshine.app;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
@@ -183,19 +185,34 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
 //        UpdateWeatherData();
 
-/*
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+/*
                 Object listItem = listView.getItemAtPosition(position);
 //                Log.v(LOG_TAG + "CCC", listItem.toString());
-                Intent detailAct = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, listItem.toString()) ;
+                Intent detailAct = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, listItem.toString()) ;
 //                Toast.makeText(getActivity(), "selected Item Name is " + listItem.toString(), Toast.LENGTH_LONG).show();
                 startActivity(detailAct);
+*/
+
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
+                Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+                if (cursor != null) {
+                    String locationSetting = Utility.getPreferredLocation(getActivity());
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                            ));
+                    startActivity(intent);
+                }
+
 
             }
         });
-*/
+
 
 
         return v;
