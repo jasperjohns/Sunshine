@@ -1,8 +1,12 @@
 package com.example.asaldanha.sunshine.app;
 
-import android.app.Fragment;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,16 +17,52 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.asaldanha.sunshine.app.data.WeatherContract;
+
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends  Fragment{
+public class DetailActivityFragment extends  android.support.v4.app.Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
     private final String SHARE_HASHTAG = " #SunShine";
     private String mForecastStr = null;
+    private  String mWeatherURI = null;
+    private final static int LOADER_ID = 0;
+    private ShareActionProvider mShareActionProvider;
+
+
+    private   static final String[] DETAILS_COLUMNS = {
+            // In this case the id needs to be fully qualified with a table name, since
+            // the content provider joins the location & weather tables in the background
+            // (both have an _id column)
+            // On the one hand, that's annoying.  On the other, you can search the weather table
+            // using the location set by the user, which is only in the Location table.
+            // So the convenience is worth it.
+            WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
+            WeatherContract.WeatherEntry.COLUMN_DATE,
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherContract.LocationEntry.COLUMN_COORD_LAT,
+            WeatherContract.LocationEntry.COLUMN_COORD_LONG
+    };
+
+    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // must change.
+    static final int COL_WEATHER_ID = 0;
+    static final int COL_WEATHER_DATE = 1;
+    static final int COL_WEATHER_DESC = 2;
+    static final int COL_WEATHER_MAX_TEMP = 3;
+    static final int COL_WEATHER_MIN_TEMP = 4;
+    static final int COL_LOCATION_SETTING = 5;
+    static final int COL_WEATHER_CONDITION_ID = 6;
+    static final int COL_COORD_LAT = 7;
+    static final int COL_COORD_LONG = 8;
 
 
     public DetailActivityFragment() {
@@ -59,6 +99,7 @@ public class DetailActivityFragment extends  Fragment{
 
         if ( intent != null) {
             mForecastStr = intent.getDataString();
+            mWeatherURI= intent.getDataString();
         }
 
         if (null != mForecastStr) {
@@ -69,6 +110,13 @@ public class DetailActivityFragment extends  Fragment{
        return rootView;
     }
 
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_share, menu);
@@ -76,9 +124,12 @@ public class DetailActivityFragment extends  Fragment{
 
         //ShareActionProvider shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 
-        ShareActionProvider shareActionProvider = new ShareActionProvider(getActivity());
-        if (shareActionProvider != null) {
-            shareActionProvider.setShareIntent(createShareForecastIntent());
+//        ShareActionProvider shareActionProvider = new ShareActionProvider(getActivity());
+        mShareActionProvider = new ShareActionProvider(getActivity());
+        if (mShareActionProvider != null) {
+            if (mForecastStr !=null) {
+                mShareActionProvider.setShareIntent(createShareForecastIntent());
+            }
             //MenuItemCompat.setActionProvider(item, shareActionProvider);
             Log.d(LOG_TAG, "Share Action Provider is NOT null");
         } else {
@@ -98,6 +149,67 @@ public class DetailActivityFragment extends  Fragment{
         shareIntent.putExtra(Intent.EXTRA_TEXT, mForecastStr + SHARE_HASHTAG);
         return shareIntent;
     }
+
+
+    //LOADER METHODS
+    @Override
+    public Loader<Cursor> onCreateLoader(int loader, Bundle args) {
+        // This is called when a new Loader needs to be created.  This
+        // sample only has one Loader, so we don't care about the ID.
+        // First, pick the base URI to use depending on whether we are
+        // currently filtering.
+
+        if (mWeatherURI== null) return null;
+
+        //Uri, projection, selection, selectionArgs, sort order
+        //Build URI for Content provider: Weather with a Start Date
+        Uri weatherURI =  Uri.parse(mWeatherURI);
+
+        //Query using the content provider to get the  cursor
+        //URI, projection, selection, selection args, sort order
+//        Cursor cur = getActivity().getContentResolver().query(weatherURI, null, null, null, sortOrder);
+
+        return new CursorLoader(getActivity(), weatherURI,
+                DETAILS_COLUMNS, null, null,
+                null);
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Swap the new cursor in.  (The framework will take care of closing the
+        // old cursor once we return.)
+        //mForecastAdapter.swapCursor(cursor);
+        if (!cursor.moveToFirst()) return;
+
+        String dateString = Utility.formatDate(cursor.getLong(COL_WEATHER_DATE));
+
+        String weatherDescription = cursor.getString(COL_WEATHER_DESC);
+
+        boolean isMetric = Utility.isMetric(getActivity());
+
+        String tempMax = Utility.formatTemperature(cursor.getLong(COL_WEATHER_MAX_TEMP), isMetric);
+        String tempMin = Utility.formatTemperature(cursor.getLong(COL_WEATHER_MIN_TEMP), isMetric);
+
+        mForecastStr = String.format("%s-%s-%s/%s", dateString, weatherDescription, tempMin, tempMax);
+
+        TextView textView = (TextView) getActivity().findViewById(R.id.textDetail);
+        textView.setText(mForecastStr);
+
+        if (mShareActionProvider !=null) {
+            mShareActionProvider.setShareIntent(createShareForecastIntent());
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // This is called when the last Cursor provided to onLoadFinished()
+        // above is about to be closed.  We need to make sure we are no
+        // longer using it.
+        //mForecastAdapter.swapCursor(null);
+    }
+
 
 
 }
