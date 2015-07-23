@@ -142,7 +142,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         // use the cursor with the Adpater
         mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
 */
-
+        // assign cur =null as the cursor will be loaded by the Cursor loader
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
         View v = inflater.inflate(R.layout.fragment_main, container, false);
