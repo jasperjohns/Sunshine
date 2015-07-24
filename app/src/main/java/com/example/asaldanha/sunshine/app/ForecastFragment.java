@@ -35,7 +35,6 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private final static int LOADER_ID = 0;
 
-
     //private ArrayAdapter<String> mForecastAdapter;
     private ForecastAdapter mForecastAdapter;
     public String a1 = "test";
@@ -80,6 +79,7 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         setHasOptionsMenu(true);
 
@@ -228,6 +228,14 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         String stringValue = value.toString();
         return true;
     }
+
+    // since we read the location when we create the loader, all we need to do is restart things
+    void onLocationChanged( ) {
+        UpdateWeatherData();
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
+    }
+
+
 
    // PUBLIC METHODS
     public void UpdateWeatherData() {

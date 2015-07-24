@@ -17,17 +17,28 @@ import android.widget.TextView;
 public class MainActivity extends ActionBarActivity
         implements Preference.OnPreferenceChangeListener {
 
+
+    private static String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+//    In MainActivity create a mLocation variable to store our current known location.
+    private static  String mLocation;
     TextView prefEditText;
     Context mContext;
 
-    private static String LOG_TAG = MainActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        prefEditText = (TextView)findViewById(R.id.pref_location);
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
+                    .commit();
+        }
+
+//        prefEditText = (TextView)findViewById(R.id.pref_location);
         mContext = getBaseContext();
 
         loadPref();
@@ -63,10 +74,10 @@ public class MainActivity extends ActionBarActivity
         }
         else if (id == R.id.action_map_location){
             SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String my_edittext_preference = mySharedPreferences.getString(getString(R.string.pref_location_key), "");
+            mLocation = mySharedPreferences.getString(getString(R.string.pref_location_key), "");
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri geoLocation = Uri.parse ("get:0").buildUpon().appendQueryParameter("q", my_edittext_preference).build();
+            Uri geoLocation = Uri.parse ("get:0").buildUpon().appendQueryParameter("q", mLocation).build();
 
 //            intent.setData(Uri.parse("geo:47.6,-122.3"));
             intent.setData(geoLocation);
@@ -75,7 +86,6 @@ public class MainActivity extends ActionBarActivity
             }
 
         }
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -92,20 +102,30 @@ public class MainActivity extends ActionBarActivity
         Log.v(LOG_TAG,"onPreferenceChange" );
         String stringValue = value.toString();
         loadPref();
-
-
         return true;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation( this );
+        // update the location in our second pane using the fragment manager
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+            if ( null != ff ) {
+                ff.onLocationChanged();
+            }
+            mLocation = location;
+        }
+    }
 
     private void loadPref(){
         SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        String my_edittext_preference = mySharedPreferences.getString(getString(R.string.pref_location_key), "");
-        prefEditText.setText(my_edittext_preference);
+        mLocation = mySharedPreferences.getString(getString(R.string.pref_location_key), "");
+//        prefEditText.setText(mLocation);
 
 //        Log.v(LOG_TAG, getString(R.string.pref_location_key));
-       Log.v(LOG_TAG + "GG:", my_edittext_preference);
+       Log.v(LOG_TAG + "GG:", mLocation);
 
 
     }
