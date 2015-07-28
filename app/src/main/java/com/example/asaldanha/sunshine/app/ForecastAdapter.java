@@ -6,6 +6,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -14,10 +15,26 @@ import android.widget.TextView;
  */
 public class ForecastAdapter extends CursorAdapter {
 
+    private static final int VIEW_TYPE_TODAY = 0;
+    private static final int VIEW_TYPE_FUTURE_DAY = 1;
+    private static final int VIEW_TYPE_COUNT = 2;
 
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
+
+
+    @Override
+    public int getItemViewType(int position) {
+        return position == 0 ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return VIEW_TYPE_COUNT;
+    }
+
+
 
     /**
      * Prepare the weather high/lows for presentation.
@@ -27,6 +44,9 @@ public class ForecastAdapter extends CursorAdapter {
         String highLowStr = Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
         return highLowStr;
     }
+
+
+
 
     /*
         This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
@@ -55,10 +75,21 @@ public class ForecastAdapter extends CursorAdapter {
      */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_forecast, parent, false);
+        int viewType = getItemViewType(cursor.getPosition());
+        View view;
+        // Decide what view type to return
+        if (viewType == VIEW_TYPE_TODAY){
+            view = LayoutInflater.from(context).inflate(R.layout.list_item_forecast_today, parent, false);
+        }
+        else {
+            view = LayoutInflater.from(context).inflate(R.layout.list_item_forecast, parent, false);
+        }
 
         return view;
     }
+
+
+
 
     /*
         This is where we fill-in the views with the contents of the cursor.
@@ -68,7 +99,62 @@ public class ForecastAdapter extends CursorAdapter {
         // our view is pretty simple here --- just a text view
         // we'll keep the UI functional with a simple (and slow!) binding.
 
-        TextView tv = (TextView)view;
-        tv.setText(convertCursorRowToUXFormat(cursor));
+        ViewHolder viewHolder = new ViewHolder(view);
+
+        viewHolder.dateView.setText(Utility.getFriendlyDayString(context, cursor.getLong(ForecastFragment.COL_WEATHER_DATE)));
+        viewHolder.descriptionView.setText(cursor.getString(ForecastFragment.COL_WEATHER_DESC));
+        viewHolder.highTempView.setText( Utility.formatTemp(context, cursor.getLong(ForecastFragment.COL_WEATHER_MAX_TEMP)));
+        viewHolder.lowTempView.setText(Utility.formatTemp(context, cursor.getLong(ForecastFragment.COL_WEATHER_MIN_TEMP)));
+        int viewType = getItemViewType(cursor.getPosition());
+        if (viewType == VIEW_TYPE_TODAY){
+            viewHolder.iconView.setImageResource(Utility.getArtResourceForWeatherCondition(cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
+        }
+        else {
+            viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
+        }
+
+        view.setTag(viewHolder);
+
+
+
+
+/*
+        TextView tv_date = (TextView) view.findViewById(R.id.list_item_date_textview);
+        tv_date.setText(Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)));
+
+        TextView tv_high = (TextView) view.findViewById(R.id.list_item_high_textview);
+        tv_high.setText(formatTemp(cursor.getLong(ForecastFragment.COL_WEATHER_MAX_TEMP)));
+
+        TextView tv_low = (TextView) view.findViewById(R.id.list_item_low_textview);
+        tv_low.setText(formatTemp((cursor.getLong(ForecastFragment.COL_WEATHER_MIN_TEMP))));
+
+        TextView tv_desc = (TextView) view.findViewById(R.id.list_item_forecast_textview);
+        tv_desc.setText(cursor.getString(ForecastFragment.COL_WEATHER_DESC));
+
+        ImageView iv_icon = (ImageView) view.findViewById(R.id.list_item_icon);
+        iv_icon.setImageResource(R.drawable.ic_launcher);
+*/
     }
+
+    /**
+     * Cache of the children views for a forecast list item.
+     */
+    public static class ViewHolder {
+        public final ImageView iconView;
+        public final TextView dateView;
+        public final TextView descriptionView;
+        public final TextView highTempView;
+        public final TextView lowTempView;
+
+
+        public ViewHolder(View view) {
+            iconView = (ImageView) view.findViewById(R.id.list_item_icon);
+            dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
+            descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
+            highTempView = (TextView) view.findViewById(R.id.list_item_high_textview);
+            lowTempView = (TextView) view.findViewById(R.id.list_item_low_textview);
+
+        }
+    }
+
 }

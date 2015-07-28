@@ -13,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 //import android.widget.ShareActionProvider;
 
@@ -93,13 +92,15 @@ public class DetailActivity extends ActionBarActivity {
 //            Log.v(LOG_TAG, bundle.getString(Intent.EXTRA_TEXT).toString());
 
                 //TODO here get the string stored in the string variable and do
-                TextView textDetail = (TextView) rootView.findViewById(R.id.textDetail);
+//                TextView textDetail = (TextView) rootView.findViewById(R.id.textDetail);
 //            textDetail.setText(bundle.getString(Intent.EXTRA_TEXT).toString());
 //            textDetail.setText("asdasdasd");
+/*
                 if (textDetail != null) {
                     mForecastStr = bundle.getString(Intent.EXTRA_TEXT).toString();
                     textDetail.setText(mForecastStr);
                 }
+*/
             }
             return rootView;
         }
