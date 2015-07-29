@@ -176,6 +176,12 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
 
         if (mWeatherURI== null) return null;
 
+        Intent intent = getActivity().getIntent();
+        if (intent == null || intent.getData() == null) {
+            return null;
+        }
+
+
         //Uri, projection, selection, selectionArgs, sort order
         //Build URI for Content provider: Weather with a Start Date
         Uri weatherURI =  Uri.parse(mWeatherURI);

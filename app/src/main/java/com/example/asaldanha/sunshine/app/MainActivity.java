@@ -20,11 +20,12 @@ public class MainActivity extends ActionBarActivity
 
     private static String LOG_TAG = MainActivity.class.getSimpleName();
     private final String FORECASTFRAGMENT_TAG = "FFTAG";
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 //    In MainActivity create a mLocation variable to store our current known location.
     private static  String mLocation;
     TextView prefEditText;
     Context mContext;
-
+    private static boolean mTwoPane;
 
 
     @Override
@@ -32,11 +33,22 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
-                    .commit();
+        // Is this a two-pane/tablet layout or not
+        if (findViewById(R.id.weather_detail_container) != null) {
+            mTwoPane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.weather_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
         }
+
+
 
 //        prefEditText = (TextView)findViewById(R.id.pref_location);
         mContext = getBaseContext();
@@ -84,9 +96,7 @@ public class MainActivity extends ActionBarActivity
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             }
-
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -111,10 +121,12 @@ public class MainActivity extends ActionBarActivity
         String location = Utility.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
-            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+//            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
             if ( null != ff ) {
                 ff.onLocationChanged();
             }
+
             mLocation = location;
         }
     }
