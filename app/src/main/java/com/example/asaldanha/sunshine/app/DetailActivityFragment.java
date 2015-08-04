@@ -30,6 +30,9 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
 
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
     private final String SHARE_HASHTAG = " #SunShine";
+    static final String DETAIL_URI = "URI";
+    private Uri mUri;
+
     private String mForecastStr = null;
     private  String mWeatherURI = null;
     private final static int LOADER_ID = 0;
@@ -89,6 +92,12 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
         Bundle bundle = intent.getExtras();
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+             mUri= arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
+        }
+
 
 
         if (bundle != null && bundle.containsKey(Intent.EXTRA_TEXT)) {
@@ -174,6 +183,9 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
         // First, pick the base URI to use depending on whether we are
         // currently filtering.
 
+        if (mUri== null) return null;
+
+/*
         if (mWeatherURI== null) return null;
 
         Intent intent = getActivity().getIntent();
@@ -181,10 +193,11 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
             return null;
         }
 
+*/
 
         //Uri, projection, selection, selectionArgs, sort order
         //Build URI for Content provider: Weather with a Start Date
-        Uri weatherURI =  Uri.parse(mWeatherURI);
+        Uri weatherURI =  mUri;
 
         //Query using the content provider to get the  cursor
         //URI, projection, selection, selection args, sort order

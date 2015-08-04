@@ -21,6 +21,8 @@ public class DetailActivity extends ActionBarActivity {
 
     private ShareActionProvider mShareActionProvider ;
     private final String LOG_TAG = DetailActivity.class.getSimpleName();
+    private static boolean mTwoPane;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,9 @@ public class DetailActivity extends ActionBarActivity {
                     .add(R.id.weather_detail_container, new DetailActivityFragment())
                     .commit();
         }
+
+
+
 
 
     }
@@ -82,8 +87,11 @@ public class DetailActivity extends ActionBarActivity {
 
 
         public DetailActivityFragmentNew() {
-            Log.v (LOG_TAG,"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
             setHasOptionsMenu(true);
+
+
+
+
         }
 
 

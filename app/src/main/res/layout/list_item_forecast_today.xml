@@ -18,7 +18,7 @@
     <TextView
         android:id="@+id/list_item_date_textview"
         android:layout_width="wrap_content"
-        android:text="Saturday"
+        android:text=""
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
 
@@ -27,7 +27,7 @@
     <TextView
         android:id="@+id/list_item_high_textview"
         android:layout_width="wrap_content"
-        android:text="91"
+        android:text=""
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
 
@@ -36,7 +36,7 @@
     <TextView
         android:id="@+id/list_item_low_textview"
         android:layout_width="wrap_content"
-        android:text="80"
+        android:text=""
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         />
@@ -57,7 +57,6 @@
             android:id="@+id/list_item_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher"
             android:layout_gravity="center_horizontal"
             />
 
@@ -65,7 +64,6 @@
         <TextView
             android:id="@+id/list_item_forecast_textview"
             android:layout_width="wrap_content"
-            android:text="Clear"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             />

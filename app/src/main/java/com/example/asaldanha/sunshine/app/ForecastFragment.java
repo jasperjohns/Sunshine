@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
+import com.example.asaldanha.sunshine.app.service.SunshineService;
 
 //import android.support.v4.app.Fragment;
 
@@ -73,6 +74,19 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
     static final int COL_COORD_LONG = 8;
 
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
+    }
+
+
     public ForecastFragment() {
     }
 
@@ -88,7 +102,7 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
         // Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
         // Wrong place ... sheould go to OnStart
-//        UpdateWeatherData();
+       UpdateWeatherData();
     }
 
 
@@ -200,6 +214,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+/*
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
                     Intent intent = new Intent(getActivity(), DetailActivity.class)
@@ -208,6 +223,18 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
                             ));
                     startActivity(intent);
                 }
+*/
+
+
+                if (cursor != null) {
+                    String locationSetting = Utility.getPreferredLocation(getActivity());
+                    ((Callback) getActivity())
+                            .onItemSelected (WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                            ));
+                }
+
+
 
 
             }
@@ -253,10 +280,19 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 */
 
 //        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity().getBaseContext());
-
 //        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mForecastAdapter);
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-        weatherTask.execute(my_edittext_preference, my_temperature_preference);
+
+
+//        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+//        weatherTask.execute(my_edittext_preference, my_temperature_preference);
+
+        // Start Intent Service
+        Intent intent = new Intent(getActivity(), SunshineService.class);
+                intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
+                                Utility.getPreferredLocation(getActivity()));
+                getActivity().startService(intent);
+
+
 
     }
 
