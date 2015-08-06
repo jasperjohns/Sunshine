@@ -5,6 +5,7 @@
     android:orientation="horizontal"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="7dp"
+    android:background="@drawable/touch_selector"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
