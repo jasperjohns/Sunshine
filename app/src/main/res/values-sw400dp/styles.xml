@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    // aaplies to only sw400dp
+    <style name="listStyle">
+        <item name="android:choiceMode">singleChoice</item>
+    </style>
+</resources>
