@@ -10,8 +10,6 @@
         android:layout_gravity="center"
         style="@style/listStyle"
         />
-
-
 </FrameLayout>
 
 

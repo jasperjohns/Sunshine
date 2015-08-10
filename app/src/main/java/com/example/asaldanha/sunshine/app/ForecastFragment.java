@@ -33,14 +33,23 @@ import com.example.asaldanha.sunshine.app.service.SunshineService;
 
 public class ForecastFragment extends android.support.v4.app.Fragment implements Preference.OnPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor>  {
 
+    public static final String LISTPOSITION_TAG = "list_position";
+
+
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private final static int LOADER_ID = 0;
 
     //private ArrayAdapter<String> mForecastAdapter;
     private ForecastAdapter mForecastAdapter;
+    private int mPosition;
     public String a1 = "test";
     ListView listView;
     private String mTemperature = "metric";
+    private boolean mUseTodayLayout = true;
+
+
+
+
 
 
     private   static final String[] FORECAST_COLUMNS = {
@@ -192,6 +201,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 */
         // assign cur =null as the cursor will be loaded by the Cursor loader
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
 
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         listView = (ListView) v.findViewById(R.id.listView_forecast);
@@ -213,6 +223,8 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
+                // Save the position
+                mPosition=position;
                 Cursor cursor = (Cursor) listView.getItemAtPosition(position);
 /*
                 if (cursor != null) {
@@ -262,9 +274,42 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
+   // Save/Restore State
+   @Override
+   public void onSaveInstanceState(Bundle savedInstanceState){
+
+       savedInstanceState.putInt(LISTPOSITION_TAG, mPosition);
+
+//        savedInstanceState.(ARTIST_TAG, );
+       super.onSaveInstanceState(savedInstanceState);
 
 
-   // PUBLIC METHODS
+   }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState){
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null) {
+            if (savedInstanceState.containsKey(LISTPOSITION_TAG)){
+                mPosition = savedInstanceState.getInt(LISTPOSITION_TAG);
+            }
+/*
+            arrayArtists = savedInstanceState.getParcelableArrayList(ARTIST_TAG);
+            Integer listPostion =  savedInstanceState.getInt(LISTPOSITION_TAG);
+            listViewArtists.setSelection(listPostion);
+
+            adapter.clear();
+            adapter.addAll(arrayArtists);
+            adapter.notifyDataSetChanged();
+*/
+        }
+
+
+    }
+
+
+
+    // PUBLIC METHODS
     public void UpdateWeatherData() {
 
         SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -294,6 +339,14 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
 
 
+    }
+
+
+    public void setUseTodayLayout (boolean useTodayLayout){
+        boolean mUseTodaylayout= useTodayLayout;
+        if (mForecastAdapter != null){
+            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
     }
 
     //LOADER METHODS

@@ -91,7 +91,7 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
         Intent intent = getActivity().getIntent();
         Bundle bundle = intent.getExtras();
 
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        View rootView = inflater.inflate(R.layout.frame_detail_ref, container, false);
 
         Bundle arguments = getArguments();
         if (arguments != null) {
