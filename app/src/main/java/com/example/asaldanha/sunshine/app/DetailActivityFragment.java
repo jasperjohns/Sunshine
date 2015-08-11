@@ -183,7 +183,7 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
         // First, pick the base URI to use depending on whether we are
         // currently filtering.
 
-        if (mUri== null) return null;
+        if (mUri== null && mWeatherURI== null) return null;
 
 /*
         if (mWeatherURI== null) return null;
@@ -197,7 +197,15 @@ public class DetailActivityFragment extends  android.support.v4.app.Fragment imp
 
         //Uri, projection, selection, selectionArgs, sort order
         //Build URI for Content provider: Weather with a Start Date
-        Uri weatherURI =  mUri;
+        Uri weatherURI;
+        if (mUri == null){
+            weatherURI =   Uri.parse(mWeatherURI);
+        }
+        else {
+            weatherURI =  mUri;
+
+        }
+
 
         //Query using the content provider to get the  cursor
         //URI, projection, selection, selection args, sort order

@@ -5,6 +5,7 @@
         android:orientation="vertical"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:padding="7dp"
+        android:layout_marginLeft="16dp"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
         <TextView
@@ -13,6 +14,9 @@
             android:text="Saturday"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="24sp"
+
             />
 
 
@@ -36,7 +40,8 @@
                 android:text="91"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
-
+                android:fontFamily="sans-serif-light"
+                android:textSize="96sp"
                 />
 
             <TextView
@@ -45,6 +50,9 @@
                 android:text="80"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/grey646464"
+                android:textSize="48sp"
                 />
 
         </LinearLayout>
@@ -71,6 +79,9 @@
                 android:text="Clear"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/grey646464"
+                android:textAppearance="?android:textAppearanceLarge"
                 />
 
 
@@ -86,6 +97,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="1"
+            android:layout_marginLeft="16dp"
             >
 
             <TextView
@@ -93,7 +105,10 @@
                 android:layout_width="wrap_content"
                 android:text="Humidity"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="left"
+                android:fontFamily="sans-serif-condensed"
+                android:textAppearance="?android:textAppearanceLarge"
+
                 />
 
 
@@ -102,7 +117,9 @@
                 android:layout_width="wrap_content"
                 android:text="Wind"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:fontFamily="sans-serif-condensed"
+                android:layout_gravity="left"
+                android:textAppearance="?android:textAppearanceLarge"
                 />
 
             <TextView
@@ -110,7 +127,9 @@
                 android:layout_width="wrap_content"
                 android:text="Pressure"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="left"
+                android:fontFamily="sans-serif-condensed"
+                android:textAppearance="?android:textAppearanceLarge"
                 />
 
 

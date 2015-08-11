@@ -49,6 +49,7 @@ public class MainActivity extends ActionBarActivity
             foreFrag.setUseTodayLayout(!mTwoPane);
         } else {
             mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
         }
 
 
