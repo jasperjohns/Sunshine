@@ -1,12 +1,13 @@
 package com.example.asaldanha.sunshine.app;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -312,9 +313,11 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
     // PUBLIC METHODS
     public void UpdateWeatherData() {
 
+/*
         SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String my_edittext_preference = mySharedPreferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
         String my_temperature_preference = mySharedPreferences.getString(getString(R.string.pref_temperature_key), getString(R.string.pref_temperature_default));
+*/
 
 /*
         if (mForecastAdapter == null) {
@@ -332,10 +335,28 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 //        weatherTask.execute(my_edittext_preference, my_temperature_preference);
 
         // Start Intent Service
+
+/*
         Intent intent = new Intent(getActivity(), SunshineService.class);
                 intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
-                                Utility.getPreferredLocation(getActivity()));
+                        Utility.getPreferredLocation(getActivity()));
                 getActivity().startService(intent);
+*/
+
+        // Pending Items and Alarms
+        // create an receiver intent
+        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
+                Utility.getPreferredLocation(getActivity()));
+        // wrap it in a PI
+        PendingIntent pi = PendingIntent.getBroadcast(getActivity(),0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);
+
+        // create the alarm manager
+        AlarmManager alarmMgr = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+        // set the alarm
+        alarmMgr.set(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis()+5000 , pi);
+
 
 
 

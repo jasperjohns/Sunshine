@@ -1,16 +1,25 @@
 package com.example.asaldanha.sunshine.app.service;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.example.asaldanha.sunshine.app.MainActivity;
+import com.example.asaldanha.sunshine.app.R;
+import com.example.asaldanha.sunshine.app.Utility;
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
 
 import org.json.JSONArray;
@@ -25,6 +34,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
+//import android.app.NotificationManager;
+
 /**
  * Created by asaldanha on 7/29/2015.
  */
@@ -35,6 +46,9 @@ public class SunshineService  extends IntentService{
     private ArrayAdapter<String> mForecastAdapter;
     //private final Context this;
 
+    private NotificationManager mNotificationManager;
+    NotificationCompat.Builder builder;
+    public static final int NOTIFICATION_ID = 1;
 
     public SunshineService(String name) {
         super("SunShineService");
@@ -47,6 +61,10 @@ public class SunshineService  extends IntentService{
     protected void onHandleIntent(Intent intent) {
 
         String locationQuery = intent.getStringExtra(LOCATION_QUERY_EXTRA);
+        if (locationQuery== null){
+            locationQuery = Utility.getPreferredLocation(this);
+            sendNotification("SunShine Alarm: " + locationQuery);
+        }
 
 
         // These two need to be declared outside the try/catch
@@ -109,6 +127,8 @@ public class SunshineService  extends IntentService{
             }
             forecastJsonStr = buffer.toString();
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
+
+
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -346,6 +366,44 @@ public class SunshineService  extends IntentService{
             locationID = ContentUris.parseId(insertURI);
         }
         return locationID;
+    }
+
+    // Post a notification indicating whether a doodle was found.
+    private void sendNotification(String msg) {
+        mNotificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("SenShine")
+                        .setContentText(msg);
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+    }
+
+
+    public  static class AlarmReceiver extends BroadcastReceiver {
+
+        private AlarmManager alarmMgr;
+        // The pending intent that is triggered when the alarm fires.
+        private PendingIntent alarmIntent;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Intent service = new Intent(context, SunshineService.class);
+            service.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
+                    intent.getStringExtra(SunshineService.LOCATION_QUERY_EXTRA));
+            context.startService(service);
+
+
+
+        }
     }
 
 }
