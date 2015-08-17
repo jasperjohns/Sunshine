@@ -1,9 +1,5 @@
 package com.example.asaldanha.sunshine.app;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
-import com.example.asaldanha.sunshine.app.service.SunshineService;
+import com.example.asaldanha.sunshine.app.sync.SunshineSyncAdapter;
 
 //import android.support.v4.app.Fragment;
 
@@ -345,6 +341,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
         // Pending Items and Alarms
         // create an receiver intent
+/*
         Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
         alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
                 Utility.getPreferredLocation(getActivity()));
@@ -356,8 +353,10 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         // set the alarm
         alarmMgr.set(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis()+5000 , pi);
+*/
 
-
+//        SunshineSyncAdapter.syncImmediately(getActivity());
+        SunshineSyncAdapter.syncImmediately(getActivity(), Utility.getPreferredLocation(getActivity()));
 
 
     }

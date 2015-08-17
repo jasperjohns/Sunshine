@@ -322,6 +322,7 @@ public class SunshineService  extends IntentService{
         }
     }
 
+
     /**
      * Helper method to handle insertion of a new location in the weather database.
      *
