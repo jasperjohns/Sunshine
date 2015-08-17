@@ -18,6 +18,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.example.asaldanha.sunshine.app.R;
+import com.example.asaldanha.sunshine.app.Utility;
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
 
 import org.json.JSONArray;
@@ -51,7 +52,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                               String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync Called.");
 
-        String locationQuery = extras.getString(LOCATION_QUERY_EXTRA);
+        String locationQuery = Utility.getPreferredLocation(getContext());
+
+//        String locationQuery = extras.getString(LOCATION_QUERY_EXTRA);
 /*
         if (locationQuery== null){
             locationQuery = Utility.getPreferredLocation(this);
