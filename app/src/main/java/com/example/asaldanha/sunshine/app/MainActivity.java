@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.example.asaldanha.sunshine.app.sync.SunshineSyncAdapter;
+
 
 public class MainActivity extends ActionBarActivity
         implements Preference.OnPreferenceChangeListener, ForecastFragment.Callback {
@@ -61,6 +63,8 @@ public class MainActivity extends ActionBarActivity
 //        mContext.getSharedPreferences()
 //        bindPreferenceSummaryToValue(mContext.this.findPreference(getString(R.string.pref_location_key)));
 //        YourActivity.this.findPreference("pref_key");
+
+        SunshineSyncAdapter.initializeSyncAdapter(this);
 
     }
 

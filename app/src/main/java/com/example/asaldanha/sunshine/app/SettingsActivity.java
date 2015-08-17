@@ -11,6 +11,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.example.asaldanha.sunshine.app.sync.SunshineSyncAdapter;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
  * <p>
@@ -48,6 +50,8 @@ public class SettingsActivity extends PreferenceActivity
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(this);
 
+
+
         // Trigger the listener immediately with the preference's
         // current value.
         onPreferenceChange(preference,
@@ -61,6 +65,10 @@ public class SettingsActivity extends PreferenceActivity
         String stringValue = value.toString();
 
         Log.v(LOG_TAG,"onPreferenceChange");
+
+//        In onPreferenceChange in the SettingsActivity, call syncImmediately() instead of creating and executing a FetchWeatherTask.
+
+        SunshineSyncAdapter.syncImmediately(this);
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
