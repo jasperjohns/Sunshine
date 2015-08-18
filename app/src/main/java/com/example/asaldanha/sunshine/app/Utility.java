@@ -243,6 +243,13 @@ public class Utility {
                 context.getString(R.string.pref_location_default));
     }
 
+    public static Boolean getPreferredNotification(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(context.getString(R.string.pref_notification_key),
+                Boolean.parseBoolean(context.getString(R.string.pref_notification_default)));
+
+    }
+
     public static boolean isMetric(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(context.getString(R.string.pref_temperature_key),

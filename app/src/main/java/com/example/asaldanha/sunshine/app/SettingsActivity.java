@@ -5,6 +5,7 @@ package com.example.asaldanha.sunshine.app;
  */
 
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -37,6 +38,7 @@ public class SettingsActivity extends PreferenceActivity
 //        bindPreferenceSummaryToValue(findPreference("pref_location_key"));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_temperature_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_notification_key)));
 
 
     }
@@ -51,20 +53,34 @@ public class SettingsActivity extends PreferenceActivity
         preference.setOnPreferenceChangeListener(this);
 
 
+        if (preference instanceof CheckBoxPreference)
+        {
+            // Trigger the listener immediately with the preference's
+            // current value.
+            onPreferenceChange(
+                    preference,
+                    PreferenceManager.getDefaultSharedPreferences(
+                            preference.getContext()).getBoolean(preference.getKey(),true));
+        }
+        else {
+            // Trigger the listener immediately with the preference's
+            // current value.
+            onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
 
-        // Trigger the listener immediately with the preference's
-        // current value.
-        onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+
+
+        }
+
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
 
-        Log.v(LOG_TAG,"onPreferenceChange");
+        Log.v(LOG_TAG, "onPreferenceChange");
 
 //        In onPreferenceChange in the SettingsActivity, call syncImmediately() instead of creating and executing a FetchWeatherTask.
 
@@ -78,11 +94,26 @@ public class SettingsActivity extends PreferenceActivity
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
-        } else {
+        }
+        else if (preference instanceof CheckBoxPreference) {
+            CheckBoxPreference checkBoxPref = (CheckBoxPreference) preference;
+            if (checkBoxPref.isChecked()){
+                preference.setSummary( getString(R.string.pref_notification_summary_notify_no));
+            }
+            else {
+                preference.setSummary( getString(R.string.pref_notification_summary_notify_yes));
+            }
+
+        }
+        else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
         }
 
-        return true;
+
+
+            return true;
     }
+
+
 }

@@ -19,6 +19,16 @@
 
     </ListPreference>
 
+    <CheckBoxPreference
+        android:title="@string/pref_notification_label"
+        android:key="@string/pref_notification_key"
+        android:defaultValue="true"
+
+        >
+
+    </CheckBoxPreference>
+
+
 
 
 </PreferenceScreen>
