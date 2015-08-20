@@ -1,5 +1,6 @@
 package com.example.asaldanha.sunshine.app;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -152,6 +153,26 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
 //            listView.setAdapter(mForecastAdapter);
 
 
+            return true;
+        }
+        if (id == R.id.action_map_location){
+            if (mForecastAdapter != null){
+                Cursor c = mForecastAdapter.getCursor();
+                String lat = c.getString(COL_COORD_LAT);
+                String lng = c.getString(COL_COORD_LONG);
+                Uri geoLocation = Uri.parse("geo:" + lat + "," + lng);
+
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geoLocation);
+
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
+                }
+
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

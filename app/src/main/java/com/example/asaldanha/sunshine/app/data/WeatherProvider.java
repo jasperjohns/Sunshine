@@ -131,9 +131,11 @@ public class WeatherProvider extends ContentProvider {
         matcher.addURI(authority,WeatherContract.PATH_WEATHER,WEATHER);
         matcher.addURI(authority,WeatherContract.PATH_WEATHER+"/*",WEATHER_WITH_LOCATION);
         matcher.addURI(authority,WeatherContract.PATH_WEATHER+"/*/#",WEATHER_WITH_LOCATION_AND_DATE);
-        matcher.addURI(authority,"location",LOCATION);
+        matcher.addURI(authority,WeatherContract.PATH_LOCATION,LOCATION);
 
 
+
+        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
 
         // 2) Use the addURI function to match each of the types.  Use the constants from
         // WeatherContract to help define the types to the UriMatcher.
@@ -282,13 +284,30 @@ public class WeatherProvider extends ContentProvider {
         Uri returnUri;
         int rowCount = 0;
 
+/*
+        Log.v("sunshine911", uri.toString());
+        Log.v("sunshine911: match ", Integer.toString(match));
+        Log.v("sunshine911 : selection", selection);
+*/
 
         if (selection == null) selection="1";
         switch (match) {
             case WEATHER:
+                //Log.v("sunshine911: ", "delete weather");
+
                 rowCount = db.delete(WeatherContract.WeatherEntry.TABLE_NAME, selection, selectionArgs);
+                break;
             case LOCATION:
+                //Log.v("sunshine911: ", "delete location");
+            try
+            {
                 rowCount = db.delete(WeatherContract.LocationEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            }
+            catch (Exception ex){
+                //Log.v("sunshine911", ex.toString());
+            }
+
         }
 
 
@@ -297,7 +316,10 @@ public class WeatherProvider extends ContentProvider {
         // the uri listeners (using the content resolver) if the rowsDeleted != 0 or the selection
         // is null.
         // Oh, and you should notify the listeners here.
-        if (rowCount !=0) {
+        // ???
+
+
+       if (rowCount !=0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
         //db.close();

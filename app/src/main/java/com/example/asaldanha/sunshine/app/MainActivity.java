@@ -92,6 +92,7 @@ public class MainActivity extends ActionBarActivity
 
             return true;
         }
+/*
         else if (id == R.id.action_map_location){
             SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             mLocation = mySharedPreferences.getString(getString(R.string.pref_location_key), "");
@@ -104,7 +105,9 @@ public class MainActivity extends ActionBarActivity
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             }
+
         }
+*/
         return super.onOptionsItemSelected(item);
     }
 
