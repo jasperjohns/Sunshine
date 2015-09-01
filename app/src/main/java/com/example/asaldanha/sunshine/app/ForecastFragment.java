@@ -1,7 +1,10 @@
 package com.example.asaldanha.sunshine.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.asaldanha.sunshine.app.data.WeatherContract;
 import com.example.asaldanha.sunshine.app.sync.SunshineSyncAdapter;
@@ -224,6 +228,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         listView = (ListView) v.findViewById(R.id.listView_forecast);
         listView.setAdapter(mForecastAdapter);
+ //       listView.setEmptyView(v.findViewById(R.id.empty));
 
 //        UpdateWeatherData();
 
@@ -431,7 +436,34 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         // Swap the new cursor in.  (The framework will take care of closing the
         // old cursor once we return.)
-        mForecastAdapter.swapCursor(cursor);
+
+        // check if cursor is empty
+        if ((cursor != null) && (cursor.getCount() > 0)){
+            mForecastAdapter.swapCursor(cursor);
+        }
+        else {
+            //if empty check connectivity
+            ConnectivityManager connectivityManager=(ConnectivityManager) getActivity().getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo=null;
+            if (connectivityManager != null) {
+                networkInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                if (!networkInfo.isAvailable()) {
+                    networkInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                    if (!networkInfo.isAvailable()) {
+                        // If down then display message
+
+                        TextView tv= (TextView) getActivity().findViewById(R.id.empty);
+                        tv.setText("asdasdasd");
+                        listView.setEmptyView(tv);
+
+                    }
+
+                }
+
+
+            }
+        }
+
     }
 
     @Override
