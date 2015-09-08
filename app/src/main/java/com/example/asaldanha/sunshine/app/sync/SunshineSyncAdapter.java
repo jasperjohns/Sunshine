@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
@@ -39,6 +40,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
@@ -74,6 +77,23 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     NotificationCompat.Builder builder;
     public static final int NOTIFICATION_ID = 1;
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN, LOCATION_STATUS_INVALID})
+    public @interface LocationStatus {}
+
+
+
+    public static final int LOCATION_STATUS_OK = 0;
+    public static final int LOCATION_STATUS_SERVER_DOWN = 1;
+    public static final int LOCATION_STATUS_SERVER_INVALID = 2;
+    public static final int LOCATION_STATUS_UNKNOWN = 3;
+    public static final int LOCATION_STATUS_INVALID = 4;
+
+
+
+    //Decorate the target methods with the annotation
+//    @LocationStatus
+//    public abstract int getLocationStatus();
 
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
@@ -153,16 +173,17 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                //return null;
+                setLocationStatusMode(LOCATION_STATUS_SERVER_DOWN);
             }
             forecastJsonStr = buffer.toString();
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
 
+            setLocationStatusMode(LOCATION_STATUS_OK);
 
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
+            setLocationStatusMode(LOCATION_STATUS_SERVER_DOWN);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             //return null;
@@ -170,6 +191,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+            setLocationStatusMode(LOCATION_STATUS_INVALID);
         }
         finally {
             if (urlConnection != null) {
@@ -186,6 +208,21 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
 
     }
+
+
+    public  void setLocationStatusMode(@LocationStatus int mode){
+
+        SharedPreferences settings = mContext.getSharedPreferences(mContext.getString(R.string.pref_locationstatus_key), 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(mContext.getString(R.string.pref_locationstatus_key), mode);
+
+        // Commit the edits!
+        editor.commit();
+
+    }
+
+
+
 
 
     /**
@@ -230,9 +267,27 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         final String OWM_WEATHER = "weather";
         final String OWM_DESCRIPTION = "main";
         final String OWM_WEATHER_ID = "id";
+        final String OWM_MESSAGE_CODE = "cod";
+
 
         try {
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
+            if (forecastJson.has(OWM_MESSAGE_CODE)) {
+                int errorCode = forecastJson.getInt(OWM_MESSAGE_CODE);
+
+                switch (errorCode) {
+                    case HttpURLConnection.HTTP_OK:
+                        break;
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        setLocationStatusMode( LOCATION_STATUS_INVALID);
+                        return;
+                    default:
+                        setLocationStatusMode(LOCATION_STATUS_SERVER_DOWN);
+                        return;
+                }
+
+            }
+
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             JSONObject cityJson = forecastJson.getJSONObject(OWM_CITY);

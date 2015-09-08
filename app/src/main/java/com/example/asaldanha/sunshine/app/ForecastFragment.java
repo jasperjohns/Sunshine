@@ -2,12 +2,13 @@ package com.example.asaldanha.sunshine.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -33,7 +34,7 @@ import com.example.asaldanha.sunshine.app.sync.SunshineSyncAdapter;
  */
 
 
-public class ForecastFragment extends android.support.v4.app.Fragment implements Preference.OnPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor>  {
+public class ForecastFragment extends android.support.v4.app.Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor>  {
 
     public static final String LISTPOSITION_TAG = "list_position";
 
@@ -49,6 +50,7 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
     private String mTemperature = "metric";
     private boolean mUseTodayLayout = true;
 
+//    private SharedPreferences.OnSharedPreferenceChangeListener mListener;
 
 
 
@@ -114,6 +116,23 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
         // or start a new one.
         // Wrong place ... sheould go to OnStart
        UpdateWeatherData();
+
+
+    }
+
+
+    @Override
+    public void onResume() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
     }
 
 
@@ -125,6 +144,14 @@ public class ForecastFragment extends android.support.v4.app.Fragment implements
 
 
 
+    }
+
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if ( key.equals(getString(R.string.pref_locationstatus_key)) ) {
+            updateEmptyView();
+        }
     }
 
 
@@ -228,7 +255,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         listView = (ListView) v.findViewById(R.id.listView_forecast);
         listView.setAdapter(mForecastAdapter);
- //       listView.setEmptyView(v.findViewById(R.id.empty));
+        listView.setEmptyView(v.findViewById(R.id.empty));
 
 //        UpdateWeatherData();
 
@@ -282,7 +309,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 //        return inflater.inflate(R.layout.fragment_main, container, false);
 
     }
-
+/*
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
 
@@ -290,7 +317,7 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         String stringValue = value.toString();
         return true;
     }
-
+*/
     // since we read the location when we create the loader, all we need to do is restart things
     void onLocationChanged( ) {
         UpdateWeatherData();
@@ -332,7 +359,39 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
 
 
 
-    // PUBLIC METHODS
+    // METHODS
+    private void updateEmptyView() {
+        if ( mForecastAdapter.getCount() == 0 ) {
+            TextView tv= (TextView) getActivity().findViewById(R.id.empty);
+
+
+
+            if ( null != tv ) {
+                // if cursor is empty, why? do we have an invalid location
+                int message = R.string.empty_forecast_list;
+                @SunshineSyncAdapter.LocationStatus int location = Utility.getPreferredLocationStatus(getActivity());
+                switch (location) {
+                    case SunshineSyncAdapter.LOCATION_STATUS_SERVER_DOWN:
+                        message = R.string.empty_forecast_list_server_down;
+                        break;
+                    case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
+                        message = R.string.empty_forecast_list_invalid_location;
+                        break;
+                    case SunshineSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
+                        message = R.string.empty_forecast_list_server_error;
+                        break;
+                    default:
+                        if (!Utility.isNetworkAvailable(getActivity()) ) {
+                            message = R.string.empty_forecast_list_no_network;
+                        }
+                }
+                tv.setText(message);
+
+            }
+        }
+    }
+
+
     public void UpdateWeatherData() {
 
 /*
@@ -440,6 +499,9 @@ has to removed when FetchWeather was implemented as a class as it was re-initial
         // check if cursor is empty
         if ((cursor != null) && (cursor.getCount() > 0)){
             mForecastAdapter.swapCursor(cursor);
+
+            updateEmptyView();
+
         }
         else {
             //if empty check connectivity

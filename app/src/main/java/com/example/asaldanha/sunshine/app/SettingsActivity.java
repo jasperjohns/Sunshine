@@ -79,6 +79,9 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
+        String key = preference.getKey();
+
+        Utility.resetLocationStatus(getApplicationContext());
 
         Log.v(LOG_TAG, "onPreferenceChange");
 
@@ -105,14 +108,29 @@ public class SettingsActivity extends PreferenceActivity
             }
 
         }
+        else if (key.equals(R.string.pref_location_key)){
+            int locationPrefStatus = Utility.getPreferredLocationStatus(getBaseContext());
+
+            switch (locationPrefStatus) {
+                case SunshineSyncAdapter.LOCATION_STATUS_OK:
+                    preference.setSummary(stringValue);
+                case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
+                    preference.setSummary(R.string.pref_location_error_description);
+                case SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN:
+                    preference.setSummary(R.string.pref_location_unknown_description);
+            }
+
+        }
         else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
+
+
         }
 
 
 
-            return true;
+        return true;
     }
 
 

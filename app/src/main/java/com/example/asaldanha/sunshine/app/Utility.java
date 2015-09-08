@@ -21,8 +21,12 @@ package com.example.asaldanha.sunshine.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
+
+import com.example.asaldanha.sunshine.app.sync.SunshineSyncAdapter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -242,6 +246,41 @@ public class Utility {
         return prefs.getString(context.getString(R.string.pref_location_key),
                 context.getString(R.string.pref_location_default));
     }
+
+
+    /**
+     * Returns true if the network is available or about to become available.
+     *
+     * @param c Context used to get the ConnectivityManager
+     * @return true if the network is available
+     */
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
+
+
+    public static void resetLocationStatus (Context c)
+    {
+        SharedPreferences settings = c.getSharedPreferences(c.getString(R.string.pref_locationstatus_key), 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(c.getString(R.string.pref_locationstatus_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
+        editor.apply();
+    }
+
+
+    @SuppressWarnings("ResourceType")
+    static public @SunshineSyncAdapter.LocationStatus
+    int  getPreferredLocationStatus(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getInt(context.getString(R.string.pref_locationstatus_key),3);
+    }
+
 
     public static Boolean getPreferredNotification(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

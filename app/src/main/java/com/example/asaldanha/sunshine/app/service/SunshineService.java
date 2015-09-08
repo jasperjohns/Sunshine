@@ -196,6 +196,7 @@ public class SunshineService  extends IntentService{
         final String OWM_WEATHER = "weather";
         final String OWM_DESCRIPTION = "main";
         final String OWM_WEATHER_ID = "id";
+        final String OWM_MESSAGE_CODE = "cod";
 
         try {
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
